@@ -1,7 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.data.Student;
-import com.example.demo.data.StudentCourse;
+import com.example.demo.data.StudentCourses;
 import com.example.demo.repository.StudentRepository;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class StudentService {
         .toList();
   }
 
-  public List<StudentCourse> getStudentCourseList() {
+  public List<StudentCourses> getStudentCourseList() {
     return repository.searchStudentCourses();
   }
 }

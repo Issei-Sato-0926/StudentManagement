@@ -1,7 +1,7 @@
 package com.example.demo.repository;
 
 import com.example.demo.data.Student;
-import com.example.demo.data.StudentCourse;
+import com.example.demo.data.StudentCourses;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -13,5 +13,5 @@ public interface StudentRepository {
   List<Student> search();
 
   @Select("SELECT * FROM student_courses")
-  List<StudentCourse> searchStudentCourses();
+  List<StudentCourses> searchStudentCourses();
 }
