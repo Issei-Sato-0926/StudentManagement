@@ -5,6 +5,7 @@ import com.example.demo.data.Student;
 import com.example.demo.data.StudentCourses;
 import com.example.demo.domain.StudentDetail;
 import com.example.demo.service.StudentService;
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -47,7 +48,9 @@ public class StudentController {
 
   @GetMapping("/newStudent")
   public String newStudent(Model model) {
-    model.addAttribute("studentDetail", new StudentDetail());
+    StudentDetail studentDetail = new StudentDetail();
+    studentDetail.setStudentCourses(Arrays.asList(new StudentCourses()));
+    model.addAttribute("studentDetail", studentDetail);
     return "registerStudent";
   }
 
@@ -56,8 +59,7 @@ public class StudentController {
     if (result.hasErrors()) {
       return "registerStudent";
     }
-    System.out.println(
-        studentDetail.getStudent().getName() + "さんが新規受講生として登録されました。");
+    service.registerStudent(studentDetail);
     return "redirect:/studentList";
   }
 }
