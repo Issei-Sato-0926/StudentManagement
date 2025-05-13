@@ -1,7 +1,7 @@
 package com.example.demo.domain;
 
 import com.example.demo.data.Student;
-import com.example.demo.data.StudentCourses;
+import com.example.demo.data.StudentCourse;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,6 +15,6 @@ import lombok.Setter;
 public class StudentDetail {
 
   private Student student;
-  private List<StudentCourses> studentCourses;
+  private List<StudentCourse> studentCourseList;
 
 }
