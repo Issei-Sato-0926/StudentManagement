@@ -1,0 +1,15 @@
+name: ✨ 機能要望
+description: 新しい機能や改善の提案を投稿する
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: 提案の内容
+      description: どんな機能を追加・変更したいかを記載してください。
+  - type: textarea
+    id: benefit
+    attributes:
+      label: この機能の利点
+      description: その機能によって解決される問題や改善される点
