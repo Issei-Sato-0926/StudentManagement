@@ -4,15 +4,21 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import raisetech.StudentManagement.data.ApplicationStatus;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
 
+/**
+ * 受講生詳細を表すドメインモデルクラスです。
+ * <p>
+ * 対象の{@link Student} 、その受講生が受講している {@link StudentCourse} の一覧、 およびそれに紐づく
+ * {@link ApplicationStatus}の一覧を保持します。
+ * </p>
+ */
 @Schema(description = "受講生詳細")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class StudentDetail {
@@ -23,4 +29,6 @@ public class StudentDetail {
   @Valid
   private List<StudentCourse> studentCourseList;
 
+  @Valid
+  private List<ApplicationStatus> applicationStatusList;
 }

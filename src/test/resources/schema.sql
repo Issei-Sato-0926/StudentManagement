@@ -11,7 +11,6 @@ CREATE TABLE students (
     is_deleted BOOLEAN DEFAULT FALSE
 );
 
-
 CREATE TABLE student_courses (
     id INT PRIMARY KEY AUTO_INCREMENT,
     student_id INT NOT NULL,
@@ -19,4 +18,11 @@ CREATE TABLE student_courses (
     course_start_at TIMESTAMP,
     course_end_at TIMESTAMP,
     FOREIGN KEY (student_id) REFERENCES students(id)
+);
+
+CREATE TABLE application_statuses (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    student_course_id INT NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    FOREIGN KEY (student_course_id) REFERENCES student_courses(id)
 );
