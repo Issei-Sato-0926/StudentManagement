@@ -1,6 +1,7 @@
 package raisetech.StudentManagement.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -22,7 +23,9 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import raisetech.StudentManagement.data.ApplicationStatus;
 import raisetech.StudentManagement.data.Student;
+import raisetech.StudentManagement.data.StudentCourse;
 import raisetech.StudentManagement.service.StudentService;
 
 @WebMvcTest(StudentController.class)
@@ -41,6 +44,7 @@ class StudentControllerTest {
     public StudentService studentService() {
       return mock(StudentService.class);
     }
+
   }
 
   private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
@@ -64,19 +68,41 @@ class StudentControllerTest {
   }
 
   @Test
+  void 条件に合致する受講生の検索が実行できて空で返ってくること() throws Exception {
+    mockMvc.perform(
+            post("/students/search").contentType(MediaType.APPLICATION_JSON).content(
+                """
+                    {
+                        "name" : "佐藤太郎",
+                        "kanaName" : "サトウタロウ",
+                        "nickname" : "タロウ",
+                        "email" : "test@example.com",
+                        "area" : "東京都",
+                        "minAge" : "20",
+                        "maxAge" : "30",
+                        "gender" : "男性",
+                        "remark" : "",
+                        "courseName" : "Javaコース"
+                    }
+                    """
+            ))
+        .andExpect(status().isOk());
+
+    verify(service, times(1)).searchByCondition(any());
+  }
+
+  @Test
   void 受講生詳細の登録が実行できて空で返ってくること() throws Exception {
-    // リクエストデータは適切に構築して入力チェックの検証も兼ねている。
-    // 本来であれば返りは登録されたデータが入るが、モック化すると意味がないため、レスポンスは作らない。
     mockMvc.perform(post("/registerStudent").contentType(MediaType.APPLICATION_JSON).content(
             """
                 {
                     "student": {
-                        "name" : "佐藤一誠",
-                        "kanaName" : "サトウイッセイ",
-                        "nickname" : "イッセイ",
+                        "name" : "佐藤太郎",
+                        "kanaName" : "サトウタロウ",
+                        "nickname" : "タロウ",
                         "email" : "test@example.com",
-                        "area" : "神奈川",
-                        "age" : "27",
+                        "area" : "東京都",
+                        "age" : "25",
                         "gender" : "男性",
                         "remark" : ""
                     },
@@ -95,28 +121,34 @@ class StudentControllerTest {
 
   @Test
   void 受講生詳細の更新が実行できて空で返ってくること() throws Exception {
-    // リクエストデータは適切に構築して入力チェックの検証も兼ねている。
     mockMvc.perform(put("/updateStudent").contentType(MediaType.APPLICATION_JSON).content(
             """
                 {
                     "student": {
-                        "id": "15",
-                        "name": "佐藤一誠",
-                        "kanaName": "サトウイッセイ",
-                        "nickname": "イッセイ",
+                        "id": "1",
+                        "name": "佐藤太郎",
+                        "kanaName": "サトウタロウ",
+                        "nickname": "タロウ",
                         "email": "test@example.com",
-                        "area": "神奈川",
-                        "age": 27,
+                        "area": "東京都",
+                        "age": 25,
                         "gender": "男性",
                         "remark": ""
                     },
                     "studentCourseList": [
                         {
-                            "id": "8",
-                            "studentId": "15",
-                            "courseName": "Javaコース",
+                            "id": "1",
+                            "studentId": "1",
+                            "courseName": "AWSコース",
                             "courseStartAt": "2025-05-12T13:03:00",
                             "courseEndAt": "2026-05-12T13:03:00"
+                        }
+                    ],
+                    "applicationStatusList": [
+                        {
+                            "id": "1",
+                            "studentCourseId": "1",
+                            "status": "本申込"
                         }
                     ]
                 }
@@ -128,21 +160,14 @@ class StudentControllerTest {
   }
 
   @Test
-  void 受講生詳細の例外APIが実行できてステータスが400で返ってくること() throws Exception {
-    mockMvc.perform(get("/exception"))
-        .andExpect(status().is4xxClientError())
-        .andExpect(content().string("例外処理テスト"));
-  }
-
-  @Test
   void 受講生詳細の受講生で適切な値を入力した時に入力チェックに異常が発生しないこと() {
     Student student = new Student();
     student.setId("1");
-    student.setName("佐藤一誠");
-    student.setKanaName("サトウイッセイ");
-    student.setNickname("イッセイ");
+    student.setName("佐藤太郎");
+    student.setKanaName("サトウタロウ");
+    student.setNickname("タロウ");
     student.setEmail("test@example.com");
-    student.setArea("奈良");
+    student.setArea("東京都");
     student.setGender("男性");
 
     Set<ConstraintViolation<Student>> violations = validator.validate(student);
@@ -151,20 +176,108 @@ class StudentControllerTest {
   }
 
   @Test
-  void 受講生詳細の受講生でIDに数字以外を用いた時に入力チェックに掛かること() {
+  void 受講生詳細の受講生で不正な形式がある場合に入力チェックに掛かること() {
     Student student = new Student();
-    student.setId("テストです。");
-    student.setName("佐藤一誠");
-    student.setKanaName("サトウイッセイ");
-    student.setNickname("イッセイ");
-    student.setEmail("test@example.com");
-    student.setArea("奈良");
+    student.setId("test");
+    student.setName("佐藤太郎");
+    student.setKanaName("サトウタロウ");
+    student.setNickname("タロウ");
+    student.setEmail("test");
+    student.setArea("東京都");
     student.setGender("男性");
 
     Set<ConstraintViolation<Student>> violations = validator.validate(student);
 
-    assertThat(violations.size()).isEqualTo(1);
-    assertThat(violations).extracting("message")
-        .containsOnly("数字のみ入力するようにしてください。");
+    assertThat(violations.size()).isEqualTo(2);
+    assertThat(violations).extracting(
+            v -> v.getPropertyPath().toString(), ConstraintViolation::getMessage)
+        .containsExactlyInAnyOrder(
+            tuple("id", "数字のみ入力するようにしてください。"),
+            tuple("email", "正しい形式のメールアドレスを入力してください。")
+        );
   }
+
+  @Test
+  void 受講生詳細の受講生で必須項目が空の場合に入力チェックに掛かること() {
+    Student student = new Student();
+    student.setName("");
+    student.setKanaName("");
+    student.setNickname("");
+    student.setEmail("");
+    student.setArea("");
+    student.setGender("");
+
+    Set<ConstraintViolation<Student>> violations = validator.validate(student);
+
+    assertThat(violations.size()).isEqualTo(6);
+    assertThat(violations).extracting(
+            v -> v.getPropertyPath().toString(), ConstraintViolation::getMessage)
+        .containsExactlyInAnyOrder(
+            tuple("name", "名前を入力してください。"),
+            tuple("kanaName", "カナ名を入力してください。"),
+            tuple("nickname", "ニックネームを入力してください。"),
+            tuple("email", "メールアドレスを入力してください。"),
+            tuple("area", "居住地域（例：東京都、神奈川県など）を入力してください。"),
+            tuple("gender", "性別（男性、女性、その他）を入力してください。")
+        );
+  }
+
+  @Test
+  void 受講生詳細の受講生コース情報で適切な値を入力した時に入力チェックに異常が発生しないこと() {
+    StudentCourse studentCourse = new StudentCourse();
+    studentCourse.setCourseName("Javaコース");
+
+    Set<ConstraintViolation<StudentCourse>> violations = validator.validate(studentCourse);
+
+    assertThat(violations.size()).isEqualTo(0);
+  }
+
+  @Test
+  void 受講生詳細の受講生コース情報で不正な形式や必須項目に空がある場合に入力チェックに掛かること() {
+    StudentCourse studentCourse = new StudentCourse();
+    studentCourse.setId("test");
+    studentCourse.setStudentId("test");
+    studentCourse.setCourseName("");
+
+    Set<ConstraintViolation<StudentCourse>> violations = validator.validate(studentCourse);
+
+    assertThat(violations.size()).isEqualTo(3);
+    assertThat(violations).extracting(
+            v -> v.getPropertyPath().toString(), ConstraintViolation::getMessage)
+        .containsExactlyInAnyOrder(
+            tuple("id", "数字のみ入力するようにしてください。"),
+            tuple("studentId", "数字のみ入力するようにしてください。"),
+            tuple("courseName", "コース名を入力してください。")
+        );
+  }
+
+  @Test
+  void 受講生詳細の申込状況で適切な値を入力した時に入力チェックに異常が発生しないこと() {
+    ApplicationStatus applicationStatus = new ApplicationStatus();
+    applicationStatus.setStatus("本申込");
+
+    Set<ConstraintViolation<ApplicationStatus>> violations = validator.validate(applicationStatus);
+
+    assertThat(violations.size()).isEqualTo(0);
+  }
+
+  @Test
+  void 受講生詳細の申込状況で不正な形式や必須項目に空がある場合に入力チェックに掛かること() {
+    ApplicationStatus applicationStatus = new ApplicationStatus();
+    applicationStatus.setId("test");
+    applicationStatus.setStudentCourseId("test");
+    applicationStatus.setStatus("");
+
+    Set<ConstraintViolation<ApplicationStatus>> violations = validator.validate(applicationStatus);
+
+    assertThat(violations.size()).isEqualTo(3);
+    assertThat(violations).extracting(
+            v -> v.getPropertyPath().toString(), ConstraintViolation::getMessage)
+        .containsExactlyInAnyOrder(
+            tuple("id", "数字のみ入力するようにしてください。"),
+            tuple("studentCourseId", "数字のみ入力するようにしてください。"),
+            tuple("status", "申込ステータスを入力してください。")
+        );
+  }
+
 }

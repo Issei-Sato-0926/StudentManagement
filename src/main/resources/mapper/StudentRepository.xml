@@ -29,6 +29,66 @@
     WHERE student_id = #{studentId}
   </select>
 
+  <!-- 申込状況の全件検索 -->
+  <select id="searchApplicationStatusList"
+    resultType="raisetech.StudentManagement.data.ApplicationStatus">
+    SELECT *
+    FROM application_statuses
+  </select>
+
+  <!-- 受講生コース情報のIDに紐づく申込状況の検索 -->
+  <select id="searchApplicationStatus"
+    parameterType="java.util.Set"
+    resultType="raisetech.StudentManagement.data.ApplicationStatus">
+    SELECT *
+    FROM application_statuses
+    WHERE student_course_id IN
+    <foreach item="id" collection="studentCourseIds" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+  </select>
+
+  <!-- 指定条件に合致する受講生の検索 -->
+  <select id="searchByCondition"
+    parameterType="raisetech.StudentManagement.model.StudentSearchCondition"
+    resultType="raisetech.StudentManagement.data.Student">
+    SELECT DISTINCT s.*
+    FROM students s
+    LEFT JOIN student_courses sc ON s.id = sc.student_id
+    <where>
+      <if test="name != null and name != ''">
+        AND s.name LIKE CONCAT('%', #{name}, '%')
+      </if>
+      <if test="kanaName != null and kanaName != ''">
+        AND s.kana_name LIKE CONCAT('%', #{kanaName}, '%')
+      </if>
+      <if test="nickname != null and nickname != ''">
+        AND s.nickname LIKE CONCAT('%', #{nickname}, '%')
+      </if>
+      <if test="email != null and email != ''">
+        AND s.email LIKE CONCAT('%', #{email}, '%')
+      </if>
+      <if test="area != null and area != ''">
+        AND s.area = #{area}
+      </if>
+      <if test="minAge != null">
+        AND s.age &gt;= #{minAge}
+      </if>
+      <if test="maxAge != null">
+        AND s.age &lt;= #{maxAge}
+      </if>
+      <if test="gender != null and gender != ''">
+        AND s.gender = #{gender}
+      </if>
+      <if test="remark != null and remark != ''">
+        AND s.remark LIKE CONCAT('%', #{remark}, '%')
+      </if>
+      <if test="courseName != null and courseName != ''">
+        AND sc.course_name LIKE CONCAT('%', #{courseName}, '%')
+      </if>
+    </where>
+  </select>
+
   <!-- 受講生の新規登録 -->
   <insert id="registerStudent" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO students (name, kana_name, nickname, email, area, age, gender, remark, is_deleted)
@@ -40,6 +100,12 @@
   <insert id="registerStudentCourse" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO student_courses (student_id, course_name, course_start_at, course_end_at)
     VALUES (#{studentId}, #{courseName}, #{courseStartAt}, #{courseEndAt})
+  </insert>
+
+  <!-- 申込状況の新規登録 -->
+  <insert id="registerApplicationStatus" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO application_statuses (student_course_id, status)
+    VALUES (#{studentCourseId}, #{status})
   </insert>
 
   <!-- 受講生の更新 -->
@@ -54,6 +120,13 @@
   <update id="updateStudentCourse">
     UPDATE student_courses
     SET course_name = #{courseName}
+    WHERE id = #{id}
+  </update>
+
+  <!-- 申込状況の更新 -->
+  <update id="updateApplicationStatus">
+    UPDATE application_statuses
+    SET status = #{status}
     WHERE id = #{id}
   </update>
 

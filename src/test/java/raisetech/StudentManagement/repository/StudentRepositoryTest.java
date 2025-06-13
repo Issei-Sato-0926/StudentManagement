@@ -4,11 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import raisetech.StudentManagement.data.ApplicationStatus;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
+import raisetech.StudentManagement.model.StudentSearchCondition;
 
 @MybatisTest
 class StudentRepositoryTest {
@@ -41,6 +44,27 @@ class StudentRepositoryTest {
   }
 
   @Test
+  void 申込状況の全件検索が行えること() {
+    List<ApplicationStatus> actual = sut.searchApplicationStatusList();
+    assertThat(actual.size()).isEqualTo(13);
+  }
+
+  @Test
+  void 受講生コース情報IDに紐づく申込状況の検索が行えること() {
+    Set<String> studentCourseIds = Set.of("1", "2");
+    List<ApplicationStatus> actual = sut.searchApplicationStatus(studentCourseIds);
+    assertThat(actual.size()).isEqualTo(2);
+  }
+
+  @Test
+  void 条件に合致する受講生の検索が行えること() {
+    StudentSearchCondition condition = new StudentSearchCondition();
+    condition.setName("佐藤");
+    List<Student> actual = sut.searchByCondition(condition);
+    assertThat(actual.size()).isEqualTo(1);
+  }
+
+  @Test
   void 受講生の登録が行えること() {
     Student student = new Student();
     student.setName("佐藤一誠");
@@ -54,9 +78,7 @@ class StudentRepositoryTest {
     student.setDeleted(false);
 
     sut.registerStudent(student);
-
     List<Student> actual = sut.search();
-
     assertThat(actual.size()).isEqualTo(11);
   }
 
@@ -69,9 +91,18 @@ class StudentRepositoryTest {
     studentCourse.setCourseEndAt(LocalDateTime.now().plusYears(1));
 
     sut.registerStudentCourse(studentCourse);
-
     List<StudentCourse> actual = sut.searchStudentCourseList();
+    assertThat(actual.size()).isEqualTo(14);
+  }
 
+  @Test
+  void 申込状況の登録が行えること() {
+    ApplicationStatus applicationStatus = new ApplicationStatus();
+    applicationStatus.setStudentCourseId("1");
+    applicationStatus.setStatus("仮申込");
+
+    sut.registerApplicationStatus(applicationStatus);
+    List<ApplicationStatus> actual = sut.searchApplicationStatusList();
     assertThat(actual.size()).isEqualTo(14);
   }
 
@@ -96,5 +127,20 @@ class StudentRepositoryTest {
 
     List<StudentCourse> actual = sut.searchStudentCourse("1");
     assertThat(actual.get(0).getCourseName()).isEqualTo("AWSコース");
+  }
+
+  @Test
+  void 申込状況の更新が行えること() {
+    List<StudentCourse> studentCourseList = sut.searchStudentCourse("1");
+    StudentCourse studentCourse = studentCourseList.get(0);
+    Set<String> studentCourseIds = Set.of(studentCourse.getId());
+    List<ApplicationStatus> applicationStatusList = sut.searchApplicationStatus(studentCourseIds);
+    ApplicationStatus applicationStatus = applicationStatusList.get(0);
+
+    applicationStatus.setStatus("本申込");
+    sut.updateApplicationStatus(applicationStatus);
+
+    List<ApplicationStatus> actual = sut.searchApplicationStatus(studentCourseIds);
+    assertThat(actual.get(0).getStatus()).isEqualTo("本申込");
   }
 }

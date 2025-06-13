@@ -4,8 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import raisetech.StudentManagement.domain.StudentDetail;
-import raisetech.StudentManagement.exception.TestException;
+import raisetech.StudentManagement.model.StudentSearchCondition;
 import raisetech.StudentManagement.service.StudentService;
 
 /**
@@ -59,9 +57,24 @@ public class StudentController {
       @ApiResponse(responseCode = "404", description = "受講生が存在しない")
   })
   @GetMapping("/student/{id}")
-  public StudentDetail getStudent(
-      @PathVariable @NotBlank @Pattern(regexp = "^\\d+$") String id) {
-    return service.searchStudent(id);
+  public StudentDetail getStudent(@PathVariable long id) {
+    return service.searchStudent(String.valueOf(id));
+  }
+
+  /**
+   * 検索条件に合致する受講生詳細を取得します。
+   *
+   * @param condition 検索条件
+   * @return 検索条件に合致する受講生詳細のリスト
+   */
+  @Operation(summary = "受講生詳細条件検索", description = "条件に合致する受講生詳細を検索します。")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "正常に取得"),
+      @ApiResponse(responseCode = "404", description = "受講生が存在しない")
+  })
+  @PostMapping("/students/search")
+  public List<StudentDetail> searchStudents(@RequestBody @Valid StudentSearchCondition condition) {
+    return service.searchByCondition(condition);
   }
 
   /**
@@ -73,7 +86,7 @@ public class StudentController {
   @Operation(summary = "受講生登録", description = "受講生を登録します。")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "登録成功"),
-      @ApiResponse(responseCode = "400", description = "バリデーションエラー"),
+      @ApiResponse(responseCode = "400", description = "バリデーションエラー")
   })
   @PostMapping("/registerStudent")
   public ResponseEntity<StudentDetail> registerStudent(
@@ -91,7 +104,7 @@ public class StudentController {
   @Operation(summary = "受講生詳細更新", description = "受講生詳細の更新をします。")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "更新成功"),
-      @ApiResponse(responseCode = "400", description = "不正なデータ"),
+      @ApiResponse(responseCode = "400", description = "バリデーションエラー")
   })
   @PutMapping("/updateStudent")
   public ResponseEntity<String> updateStudent(@RequestBody @Valid StudentDetail studentDetail) {
@@ -99,10 +112,4 @@ public class StudentController {
     return ResponseEntity.ok("更新処理が成功しました。");
   }
 
-  @Operation(summary = "例外処理テスト", description = "意図的に例外をスローします。")
-  @ApiResponse(responseCode = "500", description = "サーバーエラー（例外処理テスト）")
-  @GetMapping("/exception")
-  public void testException() throws TestException {
-    throw new TestException("例外処理テスト");
-  }
 }
