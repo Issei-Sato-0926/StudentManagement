@@ -39,7 +39,7 @@ public class StudentController {
    */
   @Operation(summary = "受講生詳細一覧検索", description = "受講生詳細の一覧を検索します。")
   @ApiResponse(responseCode = "200", description = "正常に取得")
-  @GetMapping("/studentList")
+  @GetMapping("/students")
   public List<StudentDetail> getStudentList() {
     return service.searchStudentList();
   }
@@ -56,7 +56,7 @@ public class StudentController {
       @ApiResponse(responseCode = "400", description = "不正なID"),
       @ApiResponse(responseCode = "404", description = "受講生が存在しない")
   })
-  @GetMapping("/student/{id}")
+  @GetMapping("/students/{id}")
   public StudentDetail getStudent(@PathVariable long id) {
     return service.searchStudent(String.valueOf(id));
   }
@@ -88,7 +88,7 @@ public class StudentController {
       @ApiResponse(responseCode = "200", description = "登録成功"),
       @ApiResponse(responseCode = "400", description = "バリデーションエラー")
   })
-  @PostMapping("/registerStudent")
+  @PostMapping("/students")
   public ResponseEntity<StudentDetail> registerStudent(
       @RequestBody @Valid StudentDetail studentDetail) {
     StudentDetail responseStudentDetail1 = service.registerStudent(studentDetail);
@@ -106,7 +106,7 @@ public class StudentController {
       @ApiResponse(responseCode = "200", description = "更新成功"),
       @ApiResponse(responseCode = "400", description = "バリデーションエラー")
   })
-  @PutMapping("/updateStudent")
+  @PutMapping("/students")
   public ResponseEntity<String> updateStudent(@RequestBody @Valid StudentDetail studentDetail) {
     service.updateStudent(studentDetail);
     return ResponseEntity.ok("更新処理が成功しました。");

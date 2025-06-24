@@ -51,7 +51,7 @@ class StudentControllerTest {
 
   @Test
   void 受講生詳細の一覧検索が実行できて空のリストが返ってくること() throws Exception {
-    mockMvc.perform(get("/studentList"))
+    mockMvc.perform(get("/students"))
         .andExpect(status().isOk())
         .andExpect(content().json("[]"));
 
@@ -61,7 +61,7 @@ class StudentControllerTest {
   @Test
   void 受講生詳細の検索が実行できて空で返ってくること() throws Exception {
     String id = "999";
-    mockMvc.perform(get("/student/{id}", id))
+    mockMvc.perform(get("/students/{id}", id))
         .andExpect(status().isOk());
 
     verify(service, times(1)).searchStudent(id);
@@ -93,7 +93,7 @@ class StudentControllerTest {
 
   @Test
   void 受講生詳細の登録が実行できて空で返ってくること() throws Exception {
-    mockMvc.perform(post("/registerStudent").contentType(MediaType.APPLICATION_JSON).content(
+    mockMvc.perform(post("/students").contentType(MediaType.APPLICATION_JSON).content(
             """
                 {
                     "student": {
@@ -121,7 +121,7 @@ class StudentControllerTest {
 
   @Test
   void 受講生詳細の更新が実行できて空で返ってくること() throws Exception {
-    mockMvc.perform(put("/updateStudent").contentType(MediaType.APPLICATION_JSON).content(
+    mockMvc.perform(put("/students").contentType(MediaType.APPLICATION_JSON).content(
             """
                 {
                     "student": {
