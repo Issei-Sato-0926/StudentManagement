@@ -36,19 +36,9 @@
 
 ## API
 
-## 動作イメージ
+## 動作確認用URL
 
-フロントエンド未実装のため、Postmanによる動作確認画面となります。
-
-### 受講生検索（全件）
-
-### 受講生検索（ID）
-
-### 受講生検索（条件指定）
-
-### 受講生登録
-
-### 受講生更新
+https://yourusername.github.io/student-management-frontend/index.html
 
 ## テスト実装
 
