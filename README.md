@@ -36,13 +36,13 @@
 
 ## API
 
-| HTTPメソッド | URL                                 | 処理内容                                  | 
-|---------------|-------------------------------------|---------------------------------------|
-| GET           | /students                           | 受講生詳細の全件取得 | 
-| GET           | /students/{id}                      | 指定したIDの受講生詳細の取得                       |
-| POST          | /students/search | 検索条件に合致する受講生詳細の取得       | 
-| POST          | /students                           | 受講生詳細の新規登録                           |
-| PUT           | /students                           | 受講生詳細の更新  （論理削除を含む）                            |
+| HTTPメソッド | URL              | 処理内容                | 
+|----------|------------------|---------------------|
+| GET      | /students        | 受講生詳細の全件取得          | 
+| GET      | /students/{id}   | 指定したIDの受講生詳細の取得     |
+| POST     | /students/search | 検索条件に合致する受講生詳細の取得   | 
+| POST     | /students        | 受講生詳細の新規登録          |
+| PUT      | /students        | 受講生詳細の更新  （論理削除を含む） |
 
 ## 動作イメージ
 
@@ -65,6 +65,39 @@ https://github.com/user-attachments/assets/de0e2240-5f8b-460c-a89c-99e7e7018035
 ### 受講生更新（論理削除を含む）
 
 https://github.com/user-attachments/assets/de438c48-6099-43dd-b7c4-ca113013b203
+
+## DB設計
+
+```
+CREATE TABLE students (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    kana_name VARCHAR(100) NOT NULL,
+    nickname VARCHAR(100),
+    email VARCHAR(100) UNIQUE NOT NULL,
+    area VARCHAR(100) NOT NULL,
+    age INT,
+    gender VARCHAR(10),
+    remark TEXT,
+    is_deleted BOOLEAN DEFAULT FALSE
+);
+
+CREATE TABLE student_courses (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    student_id INT NOT NULL,
+    course_name VARCHAR(100) NOT NULL,
+    course_start_at TIMESTAMP,
+    course_end_at TIMESTAMP,
+    FOREIGN KEY (student_id) REFERENCES students(id)
+);
+
+CREATE TABLE application_statuses (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    student_course_id INT NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    FOREIGN KEY (student_course_id) REFERENCES student_courses(id)
+);
+```
 
 ## テスト実装
 
