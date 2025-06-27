@@ -36,9 +36,35 @@
 
 ## API
 
-## 動作確認用URL
+| HTTPメソッド | URL                                 | 処理内容                                  | 
+|---------------|-------------------------------------|---------------------------------------|
+| GET           | /students                           | 受講生詳細の全件取得 | 
+| GET           | /students/{id}                      | 指定したIDの受講生詳細の取得                       |
+| POST          | /students/search | 検索条件に合致する受講生詳細の取得       | 
+| POST          | /students                           | 受講生詳細の新規登録                           |
+| PUT           | /students                           | 受講生詳細の更新  （論理削除を含む）                            |
 
-https://yourusername.github.io/student-management-frontend/index.html
+## 動作イメージ
+
+### 受講生検索（全件）
+
+https://github.com/user-attachments/assets/16181e5f-5424-48e2-8286-6f69fccb7a09
+
+### 受講生検索（ID）
+
+https://github.com/user-attachments/assets/ef06325b-8f6c-4573-b3ff-5c537f3a4c38
+
+### 受講生検索（条件指定）
+
+https://github.com/user-attachments/assets/04700555-72cf-4a43-81a2-2dcf00d40fb0
+
+### 受講生登録
+
+https://github.com/user-attachments/assets/de0e2240-5f8b-460c-a89c-99e7e7018035
+
+### 受講生更新（論理削除を含む）
+
+https://github.com/user-attachments/assets/de438c48-6099-43dd-b7c4-ca113013b203
 
 ## テスト実装
 
